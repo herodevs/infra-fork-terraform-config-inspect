@@ -1,3 +1,17 @@
+> [!WARNING]
+> This is a HeroDevs-maintained fork of
+> [`terraform-docs/terraform-config-inspect`](https://github.com/terraform-docs/terraform-config-inspect).
+>
+> The default `herodevs` branch carries patches that upstream has not merged yet.
+> At the moment, this fork includes support for indexed OpenTofu provider
+> references such as `aws.by_region[each.key]`, based on upstream PR
+> [`terraform-docs/terraform-config-inspect#3`](https://github.com/terraform-docs/terraform-config-inspect/pull/3).
+>
+> Keep fork-specific changes near the top of this README and in isolated commits
+> so scheduled upstream rebases stay as clean as possible. Once upstream supports
+> indexed OpenTofu provider references, remove this fork from consumers and retire
+> the patch branch.
+
 **THIS IS AN UNMAINTAINED INTERNAL FORK, PLEASE REFER TO MAIN PROJECT AT
 https://github.com/hashicorp/terraform-config-inspect**
 
