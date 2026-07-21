@@ -1,3 +1,5 @@
+# HeroDevs fork of terraform-config-inspect
+
 > [!WARNING]
 > This is a HeroDevs-maintained fork of
 > [`terraform-docs/terraform-config-inspect`](https://github.com/terraform-docs/terraform-config-inspect).
@@ -11,21 +13,36 @@
 > so scheduled upstream rebases stay as clean as possible. Once upstream supports
 > indexed OpenTofu provider references, remove this fork from consumers and retire
 > the patch branch.
+>
+> Go consumers use prerelease tags such as `v0.0.1-herodevs.0.1.0`. Go discards
+> SemVer build metadata when it resolves modules, so tags such as
+> `v0.0.1+herodevs-0.1.0` identify a fork release but are not suitable for a
+> `go.mod` replacement.
 
-**THIS IS AN UNMAINTAINED INTERNAL FORK, PLEASE REFER TO MAIN PROJECT AT
-https://github.com/hashicorp/terraform-config-inspect**
+## Using this fork
 
-# terraform-config-inspect
+The fork keeps the upstream module path, so existing imports stay unchanged. Add
+this replacement to the consuming module's `go.mod`:
+
+<!-- markdownlint-disable MD013 -->
+
+```go
+replace github.com/terraform-docs/terraform-config-inspect => github.com/herodevs/infra-fork-terraform-config-inspect v0.0.1-herodevs.0.1.0
+```
+
+<!-- markdownlint-enable MD013 -->
+
+The code below describes the original library interface. This fork is not a
+general replacement for upstream; it carries the indexed OpenTofu provider fix
+until upstream accepts equivalent support.
+
+## terraform-config-inspect
 
 This repository contains a helper library for extracting high-level metadata
 about Terraform modules from their source code. It processes only a subset
 of the information Terraform itself would process, and in return it's able
 to be broadly compatible with modules written for many different versions of
 Terraform.
-
-```
-$ go install github.com/terraform-docs/terraform-config-inspect
-```
 
 ```go
 import "github.com/terraform-docs/terraform-config-inspect/tfconfig"
@@ -48,13 +65,12 @@ be lower in older language versions.
 
 ## Command Line Tool
 
-The primary way to use this repository is as a Go library, but as a convenience
-it also contains a CLI tool called `terraform-config-inspect`, installed
-automatically by the `go get` command above, that allows viewing module
-information in either a Markdown-like format or in JSON format.
+The primary way to use this repository is as a Go library. It also contains a
+CLI tool called `terraform-config-inspect` that displays module information in
+Markdown-like or JSON form.
 
 ```sh
-$ terraform-config-inspect path/to/module
+terraform-config-inspect path/to/module
 ```
 
 ```markdown
@@ -81,7 +97,7 @@ Provider Requirements:
 ```
 
 ```sh
-$ terraform-config-inspect --json path/to/module
+terraform-config-inspect --json path/to/module
 ```
 
 ```json
@@ -164,7 +180,8 @@ maintenance burden of keeping this codebase synchronized with changes to
 Terraform itself: the features extracted by this package are unlikely to change
 significantly in future versions.
 
-For that reason, **we cannot accept external PRs for this codebase that add support for additional Terraform language features**.
+This fork accepts only the compatibility work described above. Propose broader
+Terraform language support upstream instead.
 
 Furthermore, we consider this package feature-complete; if there is a feature
 you wish to see added, please open a GitHub issue first so we can discuss the
