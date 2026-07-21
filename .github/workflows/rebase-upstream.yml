@@ -30,7 +30,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@61815dcd50bd041e203e49132bacad1fd04d2708 # v5.1.1
         with:
-          role-to-assume: ${{ vars.TF_AWS_ROLE_ARN_INFRA_AUTOMATION }}
+          role-to-assume: ${{ vars.AWS_OIDC_ROLE_ARN }}
           role-session-name: github_rebase_infra_fork_terraform_config_inspect
           aws-region: ${{ vars.AWS_REGION }}
 
