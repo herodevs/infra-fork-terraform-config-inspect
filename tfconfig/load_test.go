@@ -9,9 +9,65 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"testing/fstest"
 
 	"github.com/google/go-cmp/cmp"
 )
+
+func TestLoadModuleWithIndexedProviderReferences(t *testing.T) {
+	fs := fstest.MapFS{
+		"main.tofu": &fstest.MapFile{Data: []byte(`
+variable "region" {
+  type = string
+}
+
+provider "aws" {
+  for_each = toset(["us-west-2"])
+  alias    = "by_region"
+}
+
+resource "aws_s3_bucket" "example" {
+  for_each = toset(["us-west-2"])
+  provider = aws.by_region[each.key]
+  bucket   = "example"
+}
+
+data "aws_caller_identity" "current" {
+  provider = aws.by_region[var.region]
+}
+`)},
+	}
+
+	module, diags := LoadModuleFromFilesystem(WrapFS(fs), ".")
+	if diags.HasErrors() {
+		t.Fatalf("LoadModuleFromFilesystem returned errors: %s", diags.Error())
+	}
+
+	tests := []struct {
+		name     string
+		resource *Resource
+	}{
+		{
+			name:     "managed resource",
+			resource: module.ManagedResources["aws_s3_bucket.example"],
+		},
+		{
+			name:     "data resource",
+			resource: module.DataResources["data.aws_caller_identity.current"],
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if test.resource == nil {
+				t.Fatal("resource was not loaded")
+			}
+			if test.resource.Provider.Name != "aws" || test.resource.Provider.Alias != "by_region" {
+				t.Fatalf("provider = %#v, want aws.by_region", test.resource.Provider)
+			}
+		})
+	}
+}
 
 func TestLoadModule(t *testing.T) {
 	fixturesDir := "testdata"

@@ -294,10 +294,12 @@ func LoadModuleFromFile(file *hcl.File, mod *Module) hcl.Diagnostics {
 							traversal = nil
 						}
 					} else {
-						// Final fallback attempt to retrieve traversal expression, ignoring any index provided
-						absTraversals := attr.Expr.Variables()
-						if len(absTraversals) > 0 {
-							traversal = attr.Expr.Variables()[0]
+						// Indexed provider references have no absolute traversal. The
+						// provider reference is the first variable in source order;
+						// later variables can be index expressions such as each.key.
+						traversals := attr.Expr.Variables()
+						if len(traversals) > 0 {
+							traversal = traversals[0]
 						}
 					}
 				}
